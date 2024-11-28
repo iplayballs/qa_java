@@ -21,7 +21,7 @@ public class LionTest {
     @ParameterizedTest
     @ValueSource(strings = {"Самец", "Самка"})
     void testConstructorWithValidSex(String sex) throws Exception {
-        Lion lion = new Lion(sex);
+        Lion lion = new Lion(felineMock, sex);
 
         if (sex.equals("Самец")) {
             assertTrue(lion.doesHaveMane());
@@ -32,41 +32,78 @@ public class LionTest {
 
     @Test
     void testConstructorWithInvalidSex() {
-        assertThrows(Exception.class, () -> new Lion("Неопределившийся"));
+        assertThrows(Exception.class, () -> new Lion(felineMock,"Неопределившийся"));
     }
 
     @Test
-    void testConstructorWithFelineDependency() {
-        Lion lion = new Lion(felineMock);
+    void testConstructorWithFelineDependencyMale() throws Exception {
+        String sex = "Самец";
+        Lion lion = new Lion(felineMock, sex);
+        assertNotNull(lion);
+    }
+
+    @Test
+    void testConstructorWithFelineDependencyFemale() throws Exception {
+        String sex = "Самка";
+        Lion lion = new Lion(felineMock, sex);
         assertNotNull(lion);
     }
 
 
     @Test
-    void testGetKittens() {
+    void testGetKittensMale() throws Exception {
         when(felineMock.getKittens()).thenReturn(1);
+        String sex = "Самец";
+        Lion lion = new Lion(felineMock, sex);
+        int result = lion.getKittens();
+        assertEquals(1, result);
+    }
 
-        Lion lion = new Lion(felineMock);
+    @Test
+    void testGetKittensFemale() throws Exception {
+        when(felineMock.getKittens()).thenReturn(1);
+        String sex = "Самка";
+        Lion lion = new Lion(felineMock, sex);
         int result = lion.getKittens();
         assertEquals(1, result);
     }
 
 
     @Test
-    void testGetFood() throws Exception {
+    void testGetFoodMale() throws Exception {
         List<String> food = List.of("Животные", "Птицы", "Рыба");
         when(felineMock.getFood("Хищник")).thenReturn(food);
-
-        Lion lion = new Lion(felineMock);
+        String sex = "Самец";
+        Lion lion = new Lion(felineMock, sex);
         assertEquals(food, lion.getFood());
     }
 
     @Test
-    void testGetFoodThrowsException() {
+    void testGetFoodFemale() throws Exception {
+        List<String> food = List.of("Животные", "Птицы", "Рыба");
+        when(felineMock.getFood("Хищник")).thenReturn(food);
+        String sex = "Самка";
+        Lion lion = new Lion(felineMock, sex);
+        assertEquals(food, lion.getFood());
+    }
+
+    @Test
+    void testGetFoodThrowsExceptionMale() {
         try {
             when(felineMock.getFood("Хищник")).thenThrow(new Exception("Неизвестный вид животного, используйте значение Травоядное или Хищник"));
-
-            Lion lion = new Lion(felineMock);
+            String sex = "Самец";
+            Lion lion = new Lion(felineMock, sex);
+            assertThrows(Exception.class, lion::getFood);
+        } catch (Exception e) {
+            fail("Исключение не должно быть выброшено");
+        }
+    }
+    @Test
+    void testGetFoodThrowsExceptionFemale() {
+        try {
+            when(felineMock.getFood("Хищник")).thenThrow(new Exception("Неизвестный вид животного, используйте значение Травоядное или Хищник"));
+            String sex = "Самка";
+            Lion lion = new Lion(felineMock, sex);
             assertThrows(Exception.class, lion::getFood);
         } catch (Exception e) {
             fail("Исключение не должно быть выброшено");
